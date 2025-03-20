@@ -1,1 +1,1 @@
-# webProjectWithSequelize
+# webProject

@@ -2,6 +2,18 @@ const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/db-sequelize');
 const moment = require("moment");
 
+/**
+ * Project model
+ * - name: string, required
+ * - description: string, optional
+ * - client_id: integer, optional, foreign key to Clients
+ * - start_date: date, optional, defaults to current date
+ * - deadline: date, optional, defaults to current date
+ * - status: enum ['Upcoming', 'Pending', 'In Progress', 'Completed'], defaults to 'Pending'
+ * - overview: string, optional
+ * - files: string, optional
+ */
+
 class Project extends Model {}
 
 Project.init(
@@ -21,7 +33,7 @@ Project.init(
             type: DataTypes.INTEGER,
             allowNull: true,
             references: {
-                model: 'Client',
+                model: 'Clients',
                 key: 'id',
             },
         },

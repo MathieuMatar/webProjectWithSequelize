@@ -1,11 +1,6 @@
 const { body, param, validationResult } = require('express-validator');
 
 const validateMilestone = [
-    body('project_id')
-        .isNumeric()
-        .withMessage('Project ID must be a number')
-        .notEmpty()
-        .withMessage('Project ID is required'),
     body('name')
         .isString()
         .withMessage('Name must be a string')

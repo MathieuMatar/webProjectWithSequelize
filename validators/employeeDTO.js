@@ -1,11 +1,6 @@
 const { body, param, validationResult } = require('express-validator');
 
 const validateEmployee = [
-    body('employee_id')
-        .isNumeric()
-        .withMessage('Employee ID must be a number')
-        .notEmpty()
-        .withMessage('Employee ID is required'),
     body('name')
         .isString()
         .withMessage('Name must be a string')

@@ -2,16 +2,19 @@ const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/db-sequelize');
 const moment = require("moment");
 
-class Client extends Model {}
+/**
+ * Client model
+ * - name: string, required
+ * - email: string, optional, must be a valid email
+ * - phone: string, optional
+ * - address: string, optional
+ * - client_type: enum ['Corporate', 'Hospitality', 'Religious', 'Retail', 'NonProfit', 'Startup', 'ECommerce', 'Healthcare', 'PersonalBrand'], optional
+ */
+
+class Client extends Model { }
 
 Client.init(
     {
-      /*  client_id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            allowNull: false,
-            autoIncrement: true,
-        },*/
         name: {
             type: DataTypes.STRING(100),
             allowNull: false,

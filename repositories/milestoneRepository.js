@@ -1,57 +1,68 @@
-const db = require('../config/db');
-const Milestone = require('../models/milestoneModel');
+const Milestone = require('../models/Milestone');
+
+/**
+ * The MilestoneRepository class handles database operations for the Milestone model.
+ *
+ * @method createMilestone
+ * @param {number} project_id - The ID of the project the milestone belongs to.
+ * @param {string} name - The name of the milestone.
+ * @param {string} description - The description of the milestone.
+ * @param {Date} date - The date the milestone was created.
+ * @param {Date} due_date - The due date of the milestone.
+ * @param {string} status - The status of the milestone.
+ * @description Creates a new milestone.
+ *
+ * @method updateMilestone
+ * @param {number} id - The ID of the milestone to update.
+ * @param {number} project_id - The ID of the project the milestone belongs to.
+ * @param {string} name - The name of the milestone.
+ * @param {string} description - The description of the milestone.
+ * @param {Date} date - The date the milestone was created.
+ * @param {Date} due_date - The due date of the milestone.
+ * @param {string} status - The status of the milestone.
+ * @description Updates an existing milestone.
+ *
+ * @method deleteMilestone
+ * @param {number} id - The ID of the milestone to delete.
+ * @description Removes a milestone.
+ */
 
 class MilestoneRepository {
     static async createMilestone(project_id, name, description, date, due_date, status) {
-        const sql = `INSERT INTO milestone (project_id, name, description, date, due_date, status) VALUES (?, ?, ?, ?, ? ,?)`;
-        const params = [project_id, name, description, date, due_date, status];
         try {
-            await db.query(sql, params);
-            return {sucess: true, message: 'Milestone created successfully'};
-        }
-        catch (error) {
-            console.error("Error creating milestone: ", error);
-            return {sucess: false, message: 'Error creating milestone'};
-        }
-    }
-
-    static async readMilestonesForProject(project_id) {
-        const query = `SELECT * FROM milestone WHERE project_id = ?`;
-        const values = [project_id];
-        try {
-            const rows = await db.query(query, values);
-            return rows.map(row => Milestone.fromRow(row));
-        }
-        catch (error) {
-            console.error("Error reading milestones: ", error);
-            return {sucess: false, message: 'Error reading milestones'};
-        }
-    }
-
-
-    static async deleteMilestone(id) {
-        const query = `DELETE FROM milestone WHERE milestone_id = ?`;
-        const values = [id];
-        try {
-            await db.query(query, values);
-            return {sucess: true, message: 'Milestone deleted successfully'};
-        }
-        catch (error) {
-            console.error("Error deleting milestone: ", error);
-            return {sucess: false, message: 'Error deleting milestone'};
+            const createdMilestone = await Milestone.create({ 
+                project_id, name, description, date, due_date, status 
+            });
+            return createdMilestone;
+        } catch (error) {
+            console.error("Error creating milestone:", error);
+            return { success: false, message: "Failed to create milestone." };
         }
     }
 
     static async updateMilestone(id, project_id, name, description, date, due_date, status) {
-        const query = `UPDATE milestone SET project_id = ?, name = ?, description = ?, date = ?, due_date = ?, status = ? WHERE milestone_id = ?`;
-        const values = [project_id, name, description, date, due_date, status, id];
         try {
-            await db.query(query, values);
-            return {sucess: true, message: 'Milestone updated successfully'};
+            await Milestone.update(
+                { project_id, name, description, date, due_date, status },
+                { where: { id } }
+            );
+            return { success: true, message: "Milestone updated successfully." };
+        } catch (error) {
+            console.error("Error updating milestone:", error);
+            return { success: false, message: "Failed to update milestone." };
         }
-        catch (error) {
-            console.error("Error updating milestone: ", error);
-            return {sucess: false, message: 'Error updating milestone'};
+    }
+
+    static async deleteMilestone(id) {
+        try {
+            const deleted = await Milestone.destroy({ where: { id } });
+            if (deleted === 0) {
+                return { success: false, message: "No milestone found to delete." };
+            }
+            return { success: true, message: "Milestone deleted successfully." };
+        } catch (error) {
+            console.error("Error deleting milestone:", error);
+            return { success: false, message: "Failed to delete milestone." };
         }
     }
 }

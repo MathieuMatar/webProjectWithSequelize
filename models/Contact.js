@@ -2,6 +2,15 @@ const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/db-sequelize');
 const moment = require("moment");
 
+/**
+ * Contact model
+ * - client_id: integer, optional, foreign key to Clients
+ * - name: string, required
+ * - role: string, optional
+ * - email: string, optional, must be a valid email
+ * - phone: string, optional
+ */
+
 class Contact extends Model {}
 
 Contact.init(
@@ -11,7 +20,7 @@ Contact.init(
             type: DataTypes.INTEGER,
             allowNull: true,
             references: {
-                model: 'Client',
+                model: 'clients',
                 key: 'id',
             },
         },

@@ -2,23 +2,25 @@ const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/db-sequelize');
 const moment = require("moment");
 
+/**
+ * Milestone model
+ * - project_id: integer, required, foreign key to Projects
+ * - name: string, required
+ * - description: string, optional
+ * - date: date, optional, defaults to current date
+ * - due_date: date, optional, defaults to current date
+ * - status: enum ['Pending', 'In Progress', 'Completed'], defaults to 'Pending'
+ */
+
 class Milestone extends Model {}
 
 Milestone.init(
     {
-        /*project_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: 'Project',
-                key: 'id',
-            },
-        },*/
         project_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'Project',
+                model: 'projects',
                 key: 'id',
             },
         },

@@ -2,16 +2,24 @@ const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/db-sequelize');
 const moment = require("moment");
 
+/**
+ * Employee model
+ * - name: string, required
+ * - password: string, required
+ * - first_name: string, required
+ * - father_name: string, optional
+ * - last_name: string, required
+ * - position: string, optional
+ * - email: string, optional, must be a valid email
+ * - phone: string, optional
+ * - hire_date: date, optional, defaults to current date
+ * - info: string, optional
+ */
+
 class Employee extends Model {}
 
 Employee.init(
     {
-        /*employee_id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            allowNull: false,
-            autoIncrement: true,
-        },*/
         name: {
             type: DataTypes.STRING(100),
             allowNull: false,

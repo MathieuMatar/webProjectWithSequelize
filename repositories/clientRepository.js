@@ -1,74 +1,104 @@
-const db = require('../config/db');
-const Client = require('../models/clientModel');
+const Client = require('../models/Client');
+
+/**
+ * The ClientRepository class handles database operations for the Client model.
+ *
+ * @method readClients
+ * @description Retrieves all clients.
+ *
+ * @method readClient
+ * @param {number} id - The ID of the client to retrieve.
+ * @description Retrieves a single client by ID.
+ *
+ * @method createClient
+ * @param {string} name - The name of the client.
+ * @param {string} email - The email address of the client.
+ * @param {string} phone - The phone number of the client.
+ * @param {string} address - The address of the client.
+ * @param {string} type - The type of the client (e.g., 'Individual', 'Corporate').
+ * @description Creates a new client in the database.
+ *
+ * @method updateClient
+ * @param {number} id - The ID of the client to update.
+ * @param {string} name - The name of the client.
+ * @param {string} email - The email address of the client.
+ * @param {string} phone - The phone number of the client.
+ * @param {string} address - The address of the client.
+ * @param {string} type - The type of the client (e.g., 'Individual', 'Corporate').
+ * @description Updates an existing client in the database.
+ *
+ * @method readClientTypes
+ * @description Retrieves the client types from the database.
+ *
+ * @method deleteClient
+ * @param {number} id - The ID of the client to delete.
+ * @description Removes a client by ID.
+ */
 
 class ClientRepository {
-    static async createClient(client) {
-        const sql = `INSERT INTO client (client_id, name, email, phone, address, client_type) VALUES (?, ?, ?, ?, ?, ?)`;
-        const params = [client.client_id, client.name, client.email, client.phone, client.address, client.client_type];
-        try {
-            await db.query(sql, params);
-            return { success: true, message: "Client created successfully." };
-        } catch (error) {
-            console.error("Error creating client:", error);
-            return { success: false, message: "Failed to create client." };
-        }
-    }
-
-    static async updateClient(client_id, name, email, phone, address, client_type) {
-        const sql = `UPDATE client SET name = ?, email = ?, phone = ?, address = ?, client_type = ? WHERE client_id = ?`;
-        const params = [name, email, phone, address, client_type, client_id];
-        try {
-            await db.query(sql, params);
-            return { success: true, message: "Client updated successfully." };
-        } catch (error) {
-            console.error("Error updating client:", error);
-            return { success: false, message: "Failed to update client." };
-
-        }
-    }
-
-    // get client tyes, return them as array
-    static async readClientTypes() {
-        const sql = 'SHOW COLUMNS FROM client LIKE "client_type"';
-        try {
-            const rows = await db.query(sql);
-            return rows[0].Type.match(/'([^']+)'/g).map(type => type.replace(/'/g, ''));
-        } catch (error) {
-            console.error("Error reading client types:", error);
-            return { success: false, message: "Failed to read client types." };
-        }
-    }
-
     static async readClients() {
-        const sql = 'SELECT * FROM client';
         try {
-            const rows = await db.query(sql);
-            return rows.map(row => Client.fromRow(row));
+            const clients = await Client.findAll();
+            return clients;
         } catch (error) {
             console.error("Error reading clients:", error);
             return { success: false, message: "Failed to read clients." };
         }
     }
 
-    static async readClient(client_id) {
-        const sql = `SELECT * FROM client WHERE client_id = ?`;
+    static async readClient(id) {
         try {
-            const rows = await db.query(sql, [client_id]);
-            if (rows.length === 0) return null;
-            return Client.fromRow(rows[0]);
+            const client = await Client.findByPk(id);
+            return client;
         } catch (error) {
             console.error("Error reading client:", error);
             return { success: false, message: "Failed to read client." };
         }
     }
 
-    static async deleteClient(client_id) {
-        const sql = 'DELETE FROM client WHERE client_id = ?';
+    static async createClient(name, email, phone, address, type) {
         try {
-            const result = await db.query(sql, client_id);
-            return result;
+            const createdClient = await Client.create(
+                { name, email, phone, address, type }
+            );
+            return createdClient;
+        } catch (error) {
+            console.error("Error creating client:", error);
+            return { success: false, message: "Failed to create client." };
         }
-        catch (error) {
+    }
+
+    static async updateClient(id, name, email, phone, address, type) {
+        try {
+            await Client.update(
+                { name, email, phone, address, type },
+                { where: { id } }
+            );
+            return { success: true, message: "Client updated successfully." };
+        } catch (error) {
+            console.error("Error updating client:", error);
+            return { success: false, message: "Failed to update client." };
+        }
+    }
+
+    static async readClientTypes() {
+        try {
+            const clientTypes = await Client.getAttributes().type.values;
+            return clientTypes;
+        } catch (error) {
+            console.error("Error reading client types:", error);
+            return { success: false, message: "Failed to read client types." };
+        }
+    }
+
+    static async deleteClient(id) {
+        try {
+            const deleted = await Client.destroy({ where: { id } });
+            if (deleted === 0) {
+                return { success: false, message: "No client found to delete." };
+            }
+            return { success: true, message: "Client deleted successfully." };
+        } catch (error) {
             console.error("Error deleting client:", error);
             return { success: false, message: "Failed to delete client." };
         }

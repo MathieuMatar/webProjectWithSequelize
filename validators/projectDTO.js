@@ -1,11 +1,6 @@
 const { body, param, validationResult } = require('express-validator');
 
 const validateProject = [
-    body('project_id')
-        .isNumeric()
-        .withMessage('Project ID must be a number')
-        .notEmpty()
-        .withMessage('Project ID is required'),
     body('name')
         .isString()
         .withMessage('Name must be a string')
@@ -35,6 +30,22 @@ const validateProject = [
     }
 ];
 
+const validateProjectId = [
+    param('id')
+        .isNumeric()
+        .withMessage('Project ID must be a number')
+        .notEmpty()
+        .withMessage('Project ID is required'),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        next();
+    }
+];
+
 module.exports = {
-    validateProject
+    validateProject,
+    validateProjectId
 }

@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .test-container {
+            margin-bottom: 40px;
+        }
+        .endpoints {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .endpoint {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            width: calc(33% - 15px);
+            box-sizing: border-box;
+            background-color: #f9f9f9;
+        }
+        .endpoint h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+        .status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+        .status-indicator {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: #ccc;
+        }
+        .status-indicator.success {
+            background-color: #28a745;
+        }
+        .status-indicator.error {
+            background-color: #dc3545;
+        }
+        .status-indicator.pending {
+            background-color: #ffc107;
+        }
+        .result {
+            font-size: 12px;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            max-height: 100px;
+            overflow-y: auto;
+            word-break: break-all;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .test-all {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .response-time {
+            font-size: 12px;
+            color: #666;
+        }
+        .server-config {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+        #baseUrl {
+            width: 300px;
+            padding: 5px;
+        }
+        .progress-bar-container {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Test Dashboard</h1>
+    
+    <div class="server-config">
+        <label for="baseUrl">API Base URL:</label>
+        <input type="text" id="baseUrl" value="http://localhost:3002">
+        <button onclick="updateBaseUrl()">Update</button>
+    </div>
+    
+    <div class="test-all">
+        <button onclick="runAllTests()">Run All Tests</button>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Clients API</h2>
+        <div class="endpoints" id="clientsEndpoints">
+            <!-- Client endpoints will be generated here -->
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Contacts API</h2>
+        <div class="endpoints" id="contactsEndpoints">
+            <!-- Contact endpoints will be generated here -->
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Employees API</h2>
+        <div class="endpoints" id="employeesEndpoints">
+            <!-- Employee endpoints will be generated here -->
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Projects API</h2>
+        <div class="endpoints" id="projectsEndpoints">
+            <!-- Project endpoints will be generated here -->
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Project Relationships API</h2>
+        <div class="endpoints" id="projectRelationshipsEndpoints">
+            <!-- Project relationships endpoints will be generated here -->
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Project Milestones API</h2>
+        <div class="endpoints" id="milestonesEndpoints">
+            <!-- Milestone endpoints will be generated here -->
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Services API</h2>
+        <div class="endpoints" id="servicesEndpoints">
+            <!-- Service endpoints will be generated here -->
+        </div>
+    </div>
+
+    <script>
+        // Store created resources IDs
+        const createdResources = {
+            clients: null,
+            contacts: null,
+            employees: null,
+            projects: null,
+            services: null,
+            milestones: null
+        };
+
+        let baseUrl = 'http://localhost:3002';
+
+        // API Definitions
+        const apiDefinitions = {
+            clients: [
+                {
+                    name: 'Get All Clients',
+                    method: 'GET',
+                    url: '/api/clients',
+                    body: null
+                },
+                {
+                    name: 'Create Client',
+                    method: 'POST',
+                    url: '/api/clients',
+                    body: {
+                        name: 'Acme Corporation',
+                        email: 'contact@acme.com',
+                        phone: '123-456-7890',
+                        address: '123 Main Street, City, Country',
+                        client_type: 'Business'
+                    }
+                },
+                {
+                    name: 'Get Client by ID',
+                    method: 'GET',
+                    url: '/api/clients/:id',
+                    needsId: true,
+                    body: null
+                },
+                {
+                    name: 'Update Client',
+                    method: 'PUT',
+                    url: '/api/clients/:id',
+                    needsId: true,
+                    body: {
+                        name: 'Acme Corporation Updated',
+                        email: 'new-contact@acme.com',
+                        phone: '987-654-3210',
+                        address: '456 Second Street, City, Country',
+                        client_type: 'Enterprise'
+                    }
+                },
+                {
+                    name: 'Delete Client',
+                    method: 'DELETE',
+                    url: '/api/clients/:id',
+                    needsId: true,
+                    body: null
+                }
+            ],
+            contacts: [
+                {
+                    name: 'Get All Contacts',
+                    method: 'GET',
+                    url: '/api/contacts',
+                    body: null
+                },
+                {
+                    name: 'Create Contact',
+                    method: 'POST',
+                    url: '/api/contacts',
+                    body: {
+                        client_id: 'dependency:clients',
+                        name: 'John Doe',
+                        email: 'john.doe@acme.com',
+                        phone: '123-456-7890',
+                        role: 'Project Manager'
+                    }
+                },
+                {
+                    name: 'Get Contact by ID',
+                    method: 'GET',
+                    url: '/api/contacts/:id',
+                    needsId: true,
+                    body: null
+                },
+                {
+                    name: 'Update Contact',
+                    method: 'PUT',
+                    url: '/api/contacts/:id',
+                    needsId: true,
+                    body: {
+                        client_id: 'dependency:clients',
+                        name: 'John Doe Updated',
+                        email: 'john.updated@acme.com',
+                        phone: '987-654-3210',
+                        role: 'Senior Project Manager'
+                    }
+                },
+                {
+                    name: 'Delete Contact',
+                    method: 'DELETE',
+                    url: '/api/contacts/:id',
+                    needsId: true,
+                    body: null
+                }
+            ],
+            employees: [
+                {
+                    name: 'Get All Employees',
+                    method: 'GET',
+                    url: '/api/employees',
+                    body: null
+                },
+                {
+                    name: 'Create Employee',
+                    method: 'POST',
+                    url: '/api/employees',
+                    body: {
+                        name: 'jsmith',
+                        password: 'securepassword123',
+                        first_name: 'Jane',
+                        father_name: 'Robert',
+                        last_name: 'Smith',
+                        position: 'Developer',
+                        email: 'jane.smith@company.com',
+                        phone: '123-456-7890',
+                        hire_date: '2023-01-15',
+                        info: 'Full-stack developer with 5 years experience'
+                    }
+                },
+                {
+                    name: 'Get Employee by ID',
+                    method: 'GET',
+                    url: '/api/employees/:id',
+                    needsId: true,
+                    body: null
+                },
+                {
+                    name: 'Update Employee',
+                    method: 'PUT',
+                    url: '/api/employees/:id',
+                    needsId: true,
+                    body: {
+                        name: 'jsmith',
+                        password: 'newsecurepassword456',
+                        first_name: 'Jane',
+                        father_name: 'Robert',
+                        last_name: 'Smith',
+                        position: 'Senior Developer',
+                        email: 'jane.smith@company.com',
+                        phone: '987-654-3210',
+                        hire_date: '2023-01-15',
+                        info: 'Full-stack developer with 5 years experience, recently promoted'
+                    }
+                },
+                {
+                    name: 'Delete Employee',
+                    method: 'DELETE',
+                    url: '/api/employees/:id',
+                    needsId: true,
+                    body: null
+                }
+            ],
+            projects: [
+                {
+                    name: 'Get All Projects',
+                    method: 'GET',
+                    url: '/api/projects',
+                    body: null
+                },
+                {
+                    name: 'Create Project',
+                    method: 'POST',
+                    url: '/api/projects',
+                    body: {
+                        name: 'Website Redesign',
+                        description: 'Complete overhaul of company website',
+                        client_id: 'dependency:clients',
+                        start_date: '2023-05-01',
+                        deadline: '2023-08-31',
+                        status: 'In Progress',
+                        overview: 'Modernizing the company website with new design and functionality',
+                        files: 'wireframe.pdf'
+                    }
+                },
+                {
+                    name: 'Get Project by ID',
+                    method: 'GET',
+                    url: '/api/projects/:id',
+                    needsId: true,
+                    body: null
+                },
+                {
+                    name: 'Update Project',
+                    method: 'PUT',
+                    url: '/api/projects/:id',
+                    needsId: true,
+                    body: {
+                        name: 'Website Redesign and SEO',
+                        description: 'Complete overhaul of company website with SEO optimization',
+                        client_id: 'dependency:clients',
+                        start_date: '2023-05-01',
+                        deadline: '2023-09-30',
+                        status: 'In Progress',
+                        overview: 'Modernizing the company website with new design, functionality, and SEO optimization',
+                        files: ['wireframe.pdf', 'requirements.docx', 'seo-plan.pdf']
+                    }
+                },
+                {
+                    name: 'Delete Project',
+                    method: 'DELETE',
+                    url: '/api/projects/:id',
+                    needsId: true,
+                    body: null
+                }
+            ],
+            projectRelationships: [
+                {
+                    name: 'Assign Employee to Project',
+                    method: 'POST',
+                    url: '/api/projects/:project_id/employees/:employee_id',
+                    needsProject: true,
+                    needsEmployee: true,
+                    body: null
+                },
+                {
+                    name: 'Remove Employee from Project',
+                    method: 'DELETE',
+                    url: '/api/projects/:project_id/employees/:employee_id',
+                    needsProject: true,
+                    needsEmployee: true,
+                    body: null
+                },
+                {
+                    name: 'Associate Contact with Project',
+                    method: 'POST',
+                    url: '/api/projects/:project_id/contacts/:contact_id',
+                    needsProject: true,
+                    needsContact: true,
+                    body: null
+                },
+                {
+                    name: 'Remove Contact from Project',
+                    method: 'DELETE',
+                    url: '/api/projects/:project_id/contacts/:contact_id',
+                    needsProject: true,
+                    needsContact: true,
+                    body: null
+                },
+                {
+                    name: 'Link Service to Project',
+                    method: 'POST',
+                    url: '/api/projects/:project_id/services/:service_id',
+                    needsProject: true,
+                    needsService: true,
+                    body: null
+                },
+                {
+                    name: 'Unlink Service from Project',
+                    method: 'DELETE',
+                    url: '/api/projects/:project_id/services/:service_id',
+                    needsProject: true,
+                    needsService: true,
+                    body: null
+                }
+            ],
+            milestones: [
+                {
+                    name: 'Create Milestone',
+                    method: 'POST',
+                    url: '/api/projects/:id/milestones',
+                    needsProject: true,
+                    body: {
+                        title: 'Initial Design Phase',
+                        description: 'Complete the initial design mockups',
+                        due_date: '2023-06-15',
+                        status: 'Not Started'
+                    }
+                },
+                {
+                    name: 'Update Milestone',
+                    method: 'PUT',
+                    url: '/api/projects/milestones/:id',
+                    needsMilestone: true,
+                    body: {
+                        title: 'Initial Design Phase - Updated',
+                        description: 'Complete the revised initial design mockups',
+                        due_date: '2023-06-30',
+                        status: 'In Progress'
+                    }
+                },
+                {
+                    name: 'Delete Milestone',
+                    method: 'DELETE',
+                    url: '/api/projects/milestones/:id',
+                    needsMilestone: true,
+                    body: null
+                }
+            ],
+            services: [
+                {
+                    name: 'Get All Services',
+                    method: 'GET',
+                    url: '/api/services',
+                    body: null
+                },
+                {
+                    name: 'Create Service',
+                    method: 'POST',
+                    url: '/api/services',
+                    body: {
+                        name: 'Web Development',
+                        description: 'Full-stack web application development',
+                        rate: 150,
+                        duration: 80,
+                        status: 'Active'
+                    }
+                },
+                {
+                    name: 'Get Service by ID',
+                    method: 'GET',
+                    url: '/api/services/:id',
+                    needsId: true,
+                    body: null
+                },
+                {
+                    name: 'Update Service',
+                    method: 'PUT',
+                    url: '/api/services/:id',
+                    needsId: true,
+                    body: {
+                        name: 'Enterprise Web Development',
+                        description: 'Full-stack web application development for enterprise clients',
+                        rate: 200,
+                        duration: 100,
+                        status: 'Active'
+                    }
+                },
+                {
+                    name: 'Delete Service',
+                    method: 'DELETE',
+                    url: '/api/services/:id',
+                    needsId: true,
+                    body: null
+                }
+            ]
+        };
+
+        // Initialize dashboard
+        function init() {
+            for (const [resource, endpoints] of Object.entries(apiDefinitions)) {
+                const container = document.getElementById(`${resource}Endpoints`);
+                endpoints.forEach((endpoint, index) => {
+                    container.innerHTML += createEndpointHTML(resource, endpoint, index);
+                });
+            }
+        }
+
+        // Create HTML for each endpoint
+        function createEndpointHTML(resource, endpoint, index) {
+            let urlDisplay = endpoint.url;
+            if (endpoint.needsId) {
+                urlDisplay = urlDisplay.replace(':id', ':id_placeholder');
+            }
+            if (endpoint.needsProject) {
+                urlDisplay = urlDisplay.replace(':project_id', ':project_id_placeholder');
+                urlDisplay = urlDisplay.replace(':id', ':project_id_placeholder');
+            }
+            if (endpoint.needsEmployee) {
+                urlDisplay = urlDisplay.replace(':employee_id', ':employee_id_placeholder');
+            }
+            if (endpoint.needsContact) {
+                urlDisplay = urlDisplay.replace(':contact_id', ':contact_id_placeholder');
+            }
+            if (endpoint.needsService) {
+                urlDisplay = urlDisplay.replace(':service_id', ':service_id_placeholder');
+            }
+            if (endpoint.needsMilestone) {
+                urlDisplay = urlDisplay.replace(':id', ':milestone_id_placeholder');
+            }
+            
+            return `
+                <div class="endpoint" id="${resource}-endpoint-${index}">
+                    <h3>${endpoint.name}</h3>
+                    <p><strong>Method:</strong> ${endpoint.method}</p>
+                    <p><strong>URL:</strong> ${urlDisplay}</p>
+                    <button onclick="testEndpoint('${resource}', ${index})">Test</button>
+                    <div class="status">
+                        <span>Status: <span class="response-time" id="${resource}-time-${index}"></span></span>
+                        <div class="status-indicator" id="${resource}-status-${index}"></div>
+                    </div>
+                    <div class="result" id="${resource}-result-${index}"></div>
+                </div>
+            `;
+        }
+
+        // Process the endpoint request
+        async function testEndpoint(resource, index) {
+            const endpoint = apiDefinitions[resource][index];
+            
+            // Update UI to show pending status
+            document.getElementById(`${resource}-status-${index}`).className = 'status-indicator pending';
+            document.getElementById(`${resource}-result-${index}`).textContent = 'Testing...';
+            
+            let url = baseUrl + endpoint.url;
+            
+            // Handle ID placeholder replacement
+            if (endpoint.needsId) {
+                const resourceId = createdResources[resource];
+                if (!resourceId && endpoint.method !== 'POST') {
+                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
+                    document.getElementById(`${resource}-result-${index}`).textContent = 'Error: Need to create a resource first';
+                    return;
+                }
+                url = url.replace(':id', resourceId);
+            }
+            
+            // Handle project ID placeholder replacement
+            if (endpoint.needsProject) {
+                const projectId = createdResources.projects;
+                if (!projectId) {
+                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
+                    document.getElementById(`${resource}-result-${index}`).textContent = 'Error: Need to create a project first';
+                    return;
+                }
+                url = url.replace(':project_id', projectId);
+                url = url.replace(':id', projectId); // For milestone creation which uses :id
+            }
+            
+            // Handle employee ID placeholder replacement
+            if (endpoint.needsEmployee) {
+                const employeeId = createdResources.employees;
+                if (!employeeId) {
+                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
+                    document.getElementById(`${resource}-result-${index}`).textContent = 'Error: Need to create an employee first';
+                    return;
+                }
+                url = url.replace(':employee_id', employeeId);
+            }
+            
+            // Handle contact ID placeholder replacement
+            if (endpoint.needsContact) {
+                const contactId = createdResources.contacts;
+                if (!contactId) {
+                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
+                    document.getElementById(`${resource}-result-${index}`).textContent = 'Error: Need to create a contact first';
+                    return;
+                }
+                url = url.replace(':contact_id', contactId);
+            }
+            
+            // Handle service ID placeholder replacement
+            if (endpoint.needsService) {
+                const serviceId = createdResources.services;
+                if (!serviceId) {
+                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
+                    document.getElementById(`${resource}-result-${index}`).textContent = 'Error: Need to create a service first';
+                    return;
+                }
+                url = url.replace(':service_id', serviceId);
+            }
+            
+            // Handle milestone ID placeholder replacement
+            if (endpoint.needsMilestone) {
+                const milestoneId = createdResources.milestones;
+                if (!milestoneId) {
+                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
+                    document.getElementById(`${resource}-result-${index}`).textContent = 'Error: Need to create a milestone first';
+                    return;
+                }
+                url = url.replace(':id', milestoneId);
+            }
+            
+            // Handle request body and dependencies
+            let body = endpoint.body ? JSON.parse(JSON.stringify(endpoint.body)) : null;
+            if (body) {
+                for (const key in body) {
+                    if (typeof body[key] === 'string' && body[key].startsWith('dependency:')) {
+                        const depResource = body[key].split(':')[1];
+                        if (!createdResources[depResource]) {
+                            document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
+                            document.getElementById(`${resource}-result-${index}`).textContent = `Error: Dependency on ${depResource} not met`;
+                            return;
+                        }
+                        body[key] = createdResources[depResource];
+                    }
+                }
+            }
+            
+            // Make the API request
+            const startTime = performance.now();
+            try {
+                const response = await fetch(url, {
+                    method: endpoint.method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: body ? JSON.stringify(body) : undefined
+                });
+                
+                const endTime = performance.now();
+                const responseTime = Math.round(endTime - startTime);
+                document.getElementById(`${resource}-time-${index}`).textContent = `${responseTime}ms`;
+                
+                const responseData = await response.json().catch(() => {});
+                
+                if (response.ok) {
+                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator success';
+                    document.getElementById(`${resource}-result-${index}`).textContent = JSON.stringify(responseData, null, 2);
+                    
+                    // Store ID if this was a create operation
+                    if (endpoint.method === 'POST' && responseData && responseData.id) {
+                        if (resource === 'milestones') {
+                            createdResources.milestones = responseData.id;
+                        } else {
+                            createdResources[resource] = responseData.id;
+                        }
+                    }
+                } else {
+                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
+                    document.getElementById(`${resource}-result-${index}`).textContent = JSON.stringify(responseData || response.statusText, null, 2);
+                }
+            } catch (error) {
+                const endTime = performance.now();
+                const responseTime = Math.round(endTime - startTime);
+                document.getElementById(`${resource}-time-${index}`).textContent = `${responseTime}ms`;
+                
+                document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
+                document.getElementById(`${resource}-result-${index}`).textContent = `Network error: ${error.message}`;
+            }
+        }
+
+        // Run all tests in sequence
+        async function runAllTests() {
+            // Reset created resources
+            for (const resource in createdResources) {
+                createdResources[resource] = null;
+            }
+            
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = '0%';
+            
+            let totalTests = 0;
+            let completedTests = 0;
+            
+            // Count total number of tests
+            for (const resource in apiDefinitions) {
+                totalTests += apiDefinitions[resource].length;
+            }
+            
+            // Process resources in a specific order to handle dependencies
+            const resourceOrder = ['clients', 'services', 'employees', 'contacts', 'projects', 'projectRelationships', 'milestones'];
+            
+            for (const resource of resourceOrder) {
+                // First do creates, then GETs, then updates
+                const endpoints = apiDefinitions[resource];
+                
+                // Process POSTs first (creates)
+                for (let i = 0; i < endpoints.length; i++) {
+                    if (endpoints[i].method === 'POST') {
+                        await testEndpoint(resource, i);
+                        completedTests++;
+                        progressBar.style.width = `${(completedTests / totalTests) * 100}%`;
+                    }
+                }
+                
+                // Then process GETs
+                for (let i = 0; i < endpoints.length; i++) {
+                    if (endpoints[i].method === 'GET') {
+                        await testEndpoint(resource, i);
+                        completedTests++;
+                        progressBar.style.width = `${(completedTests / totalTests) * 100}%`;
+                    }
+                }
+                
+                // Then process PUTs (updates)
+                for (let i = 0; i < endpoints.length; i++) {
+                    if (endpoints[i].method === 'PUT') {
+                        await testEndpoint(resource, i);
+                        completedTests++;
+                        progressBar.style.width = `${(completedTests / totalTests) * 100}%`;
+                    }
+                }
+                
+                // Don't process DELETEs yet to maintain dependencies
+            }
+            
+            // Finally process all DELETEs in reverse order to handle dependencies properly
+            for (const resource of resourceOrder.slice().reverse()) {
+                const endpoints = apiDefinitions[resource];
+                for (let i = 0; i < endpoints.length; i++) {
+                    if (endpoints[i].method === 'DELETE') {
+                        await testEndpoint(resource, i);
+                        completedTests++;
+                        progressBar.style.width = `${(completedTests / totalTests) * 100}%`;
+                    }
+                }
+            }
+        }
+
+        // Update the base URL
+        function updateBaseUrl() {
+            baseUrl = document.getElementById('baseUrl').value;
+        }
+
+        // Initialize when page loads
+        window.onload = init;
+    </script>
+</body>
+</html>

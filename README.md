@@ -1,6 +1,26 @@
+
+---
+
 # API Documentation
 
 Below is the comprehensive documentation for all API routes in the application. Each section outlines the available endpoints with their HTTP methods, parameters, request bodies, and descriptions.
+
+---
+
+## Table of Contents
+
+- [Services API](#services-api)
+- [Employees API](#employees-api)
+- [Clients API](#clients-api)
+- [Contacts API](#contacts-api)
+- [Projects API](#projects-api)
+- [Tasks API](#tasks-api)
+- [Users API](#users-api)
+- [Server Information](#server-information)
+- [Project Setup](#project-setup)
+- [Technologies Used](#technologies-used)
+
+---
 
 ## Services API
 
@@ -29,6 +49,8 @@ Below is the comprehensive documentation for all API routes in the application. 
   "status": "ENUM('Active', 'Inactive', 'Pending')"
 }
 ```
+
+---
 
 ## Employees API
 
@@ -63,6 +85,8 @@ Below is the comprehensive documentation for all API routes in the application. 
 }
 ```
 
+---
+
 ## Clients API
 
 ### Endpoints
@@ -90,6 +114,8 @@ Below is the comprehensive documentation for all API routes in the application. 
   "client_type": "ENUM('Corporate', 'Hospitality', 'Religious', 'Retail', 'NonProfit', 'Startup', 'ECommerce', 'Healthcare', 'PersonalBrand')"
 }
 ```
+
+---
 
 ## Contacts API
 
@@ -119,6 +145,8 @@ Below is the comprehensive documentation for all API routes in the application. 
 }
 ```
 
+---
+
 ## Projects API
 
 ### Endpoints
@@ -144,9 +172,9 @@ Below is the comprehensive documentation for all API routes in the application. 
 
 - `:id` - Project ID (for GET, PUT, DELETE methods)
 - `:project_id` - Project ID (for association methods)
-- `:employee_id` - Employee ID (for employee association methods)
-- `:contact_id` - Contact ID (for contact association methods)
-- `:service_id` - Service ID (for service association methods)
+- `:employee_id` - Employee ID
+- `:contact_id` - Contact ID
+- `:service_id` - Service ID
 
 ### Request Body (POST/PUT for projects)
 
@@ -166,13 +194,15 @@ Below is the comprehensive documentation for all API routes in the application. 
 
 ```json
 {
-    "name": "string",
-    "description": "string",
-    "date": "date",
-    "due_date": "date",
-    "status": "String"
+  "name": "string",
+  "description": "string",
+  "date": "date",
+  "due_date": "date",
+  "status": "string"
 }
 ```
+
+---
 
 ## Tasks API
 
@@ -201,13 +231,100 @@ Below is the comprehensive documentation for all API routes in the application. 
   "contactCompleted": "number",
   "employeeCompleted": "number",
   "completed": "ENUM('Y', 'N', 'C')",
-  "date": "Date",
-  "dueDate": "Date",
+  "date": "date",
+  "dueDate": "date",
   "taskDescription": "string",
   "importanceLevel": "ENUM('Critical', 'High', 'Medium', 'Low', 'Optional')"
 }
 ```
 
+---
+
+## Users API
+
+### Endpoints
+
+| Method | URL | Description |
+|--------|-----|-------------|
+| `GET` | `/api/users` | Retrieve all users |
+| `GET` | `/api/users/:id` | Retrieve a specific user by ID |
+| `POST` | `/api/users` | Create a new user |
+| `PUT` | `/api/users/:id` | Update a user by ID |
+| `DELETE` | `/api/users/:id` | Delete a user by ID |
+
+### Parameters
+
+- `:id` - User ID (for GET, PUT, DELETE methods)
+
+### Request Body (POST/PUT)
+
+```json
+{
+  "username": "string",
+  "email": "string",
+  "password": "string"
+}
+```
+
+---
+
 ## Server Information
 
-The server runs on the port specified in the environment variables. All endpoints follow RESTful conventions and return appropriate HTTP status codes.
+The server runs on the port specified in the `.env` file. All endpoints follow RESTful conventions and return appropriate HTTP status codes and JSON responses.
+
+---
+
+## Project Setup
+
+### 📦 Installation
+
+1. Clone the repository:
+   ```bash
+   git clone [https://github.com/your-repo/project.git](https://github.com/MathieuMatar/webProjectWithSequelize.git)
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Configure environment variables by creating a `.env` file:
+   ```env
+   PORT=3002
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=yourpassword
+   DB_NAME=your_database_name
+   ```
+
+4. Start MariaDB and create your database:
+   ```sql
+   CREATE DATABASE your_database_name;
+   ```
+
+5. Run migrations (if any):
+   ```bash
+   npm run migrate
+   ```
+
+6. Start the server:
+   ```bash
+   npm start
+   ```
+   or in development:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## Technologies Used
+
+- **Node.js** – JavaScript runtime
+- **Express.js** – Web application framework
+- **MariaDB** – Relational database
+- **Sequelize / Raw SQL** – ORM or query method
+- **dotenv** – Environment config
+- **Postman** – API testing (optional)
+
+---

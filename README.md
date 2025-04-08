@@ -168,6 +168,13 @@ Below is the comprehensive documentation for all API routes in the application. 
 {
   // Milestone details (structure not provided in source)
 }
+{
+    "name": "string",
+    "description": "string",
+    "date": "date",
+    "due_date": "date",
+    "status": "String"
+}
 ```
 
 ## Tasks API

@@ -23,6 +23,7 @@ Request body:
     client_id: int,
     start_date: date,
     deadline: date,
+    status: string,
     overview: string,
     files: string
 }
@@ -36,6 +37,7 @@ Updates an existing project by ID.
     client_id: int,
     start_date: date,
     deadline: date,
+    status: string,
     overview: string,
     files: string
 }
@@ -75,6 +77,34 @@ DELETE /api/projects/:project_id/services/:service_id
 Unlinks a service from a project.
 @param {string} project_id - Project ID
 @param {string} service_id - Service ID
+
+POST /api/projects/:id/milestones
+Creates a new milestone for a project.
+@param {string} id - Project ID
+{
+    name: string,
+    description: string,
+    date: date,
+    due_date: date,
+    status: string
+}
+
+PUT /api/projects/milestones/:id
+Updates an existing milestone.
+@param {string} id - Milestone ID
+{
+    project_id: int,
+    name: string,
+    description: string,
+    date: date,
+    due_date: date,
+    status: string
+}
+
+DELETE /api/projects/milestones/:id
+Deletes a milestone.
+@param {string} id - Milestone ID
+
 
 
 

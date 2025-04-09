@@ -1,796 +1,1160 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Test Dashboard</title>
+    <title>API Tester - Localhost:3002</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
             max-width: 1200px;
             margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .api-section {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
             padding: 20px;
         }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .test-container {
-            margin-bottom: 40px;
-        }
-        .endpoints {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 10px;
-        }
-        .endpoint {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-            width: calc(33% - 15px);
-            box-sizing: border-box;
-            background-color: #f9f9f9;
-        }
-        .endpoint h3 {
+
+        h2 {
             margin-top: 0;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 8px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            color: #444;
         }
-        .status {
+
+        .endpoint {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .endpoint-title {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 15px;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
-        .status-indicator {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background-color: #ccc;
-        }
-        .status-indicator.success {
-            background-color: #28a745;
-        }
-        .status-indicator.error {
-            background-color: #dc3545;
-        }
-        .status-indicator.pending {
-            background-color: #ffc107;
-        }
-        .result {
-            font-size: 12px;
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f0f0f0;
+
+        .method {
+            padding: 5px 10px;
             border-radius: 4px;
-            max-height: 100px;
-            overflow-y: auto;
-            word-break: break-all;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
         }
+
+        .get {
+            background-color: #61affe;
+        }
+
+        .post {
+            background-color: #49cc90;
+        }
+
+        .put {
+            background-color: #fca130;
+        }
+
+        .delete {
+            background-color: #f93e3e;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+        }
+
         button {
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 10px 15px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-            margin: 4px 2px;
+            padding: 8px 15px;
+            border-radius: 4px;
             cursor: pointer;
-            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.2s;
         }
-        .test-all {
-            text-align: center;
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .run-all {
+            background-color: #2196F3;
+            padding: 12px 20px;
+            font-size: 16px;
             margin-bottom: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
-        .response-time {
-            font-size: 12px;
-            color: #666;
+
+        .run-all:hover {
+            background-color: #0b7dda;
         }
-        .server-config {
-            margin-bottom: 20px;
-            padding: 10px;
+
+        .response {
+            margin-top: 10px;
             background-color: #f0f0f0;
-            border-radius: 4px;
-        }
-        #baseUrl {
-            width: 300px;
-            padding: 5px;
-        }
-        .progress-bar-container {
-            margin-top: 20px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            background-color: #f0f0f0;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
         }
-        .progress-bar {
-            height: 20px;
-            background-color: #4CAF50;
-            width: 0%;
+
+        .status {
+            margin-top: 10px;
+            padding: 5px 10px;
             border-radius: 4px;
-            transition: width 0.3s;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .tab.active {
+            background-color: #fff;
+            border-bottom: 1px solid #fff;
+            margin-bottom: -1px;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
+
 <body>
-    <h1>API Test Dashboard</h1>
-    
-    <div class="server-config">
-        <label for="baseUrl">API Base URL:</label>
-        <input type="text" id="baseUrl" value="http://localhost:3002">
-        <button onclick="updateBaseUrl()">Update</button>
-    </div>
-    
-    <div class="test-all">
-        <button onclick="runAllTests()">Run All Tests</button>
-        <div class="progress-bar-container">
-            <div class="progress-bar" id="progressBar"></div>
+    <div class="container">
+        <h1>API Tester - Localhost:3002</h1>
+
+        <button id="runAllButton" class="run-all">Run All Tests</button>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="clients">Clients</div>
+            <div class="tab" data-tab="contacts">Contacts</div>
+            <div class="tab" data-tab="employees">Employees</div>
+            <div class="tab" data-tab="projects">Projects</div>
+            <div class="tab" data-tab="associations">Project Associations</div>
+            <div class="tab" data-tab="milestones">Project Milestones</div>
+            <div class="tab" data-tab="tasks">Tasks</div>
+            <div class="tab" data-tab="users">Users</div>
         </div>
-    </div>
-    
-    <div class="test-container">
-        <h2>Clients API</h2>
-        <div class="endpoints" id="clientsEndpoints">
-            <!-- Client endpoints will be generated here -->
+
+        <!-- Clients API -->
+        <div id="clients" class="tab-content active">
+            <div class="api-section">
+                <h2>Clients API</h2>
+
+                <!-- GET /api/clients -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>GET /api/clients</span>
+                        <span class="method get">GET</span>
+                    </div>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/clients" data-method="GET">Run
+                            Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- GET /api/clients/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>GET /api/clients/:id</span>
+                        <span class="method get">GET</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter client ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/clients/" data-method="GET"
+                            data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- POST /api/clients -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>POST /api/clients</span>
+                        <span class="method post">POST</span>
+                    </div>
+                    <textarea class="request-body">{
+  "name": "Acme Corp",
+  "email": "contact@acmecorp.com",
+  "phone": "0987654321",
+  "status": "Pending",
+  "address": "123 Business Road",
+  "client_type": "Corporate"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/clients" data-method="POST"
+                            data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- PUT /api/clients/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>PUT /api/clients/:id</span>
+                        <span class="method put">PUT</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter client ID">
+                    </div>
+                    <textarea class="request-body">{
+  "name": "Updated Acme Corp",
+  "email": "updated@acmecorp.com",
+  "phone": "9876543210",
+  "address": "456 Corporate Blvd",
+  "client_type": "Corporate"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/clients/" data-method="PUT"
+                            data-needs-id="true" data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- DELETE /api/clients/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>DELETE /api/clients/:id</span>
+                        <span class="method delete">DELETE</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter client ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/clients/" data-method="DELETE"
+                            data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <div class="test-container">
-        <h2>Contacts API</h2>
-        <div class="endpoints" id="contactsEndpoints">
-            <!-- Contact endpoints will be generated here -->
+
+        <!-- Contacts API -->
+        <div id="contacts" class="tab-content">
+            <div class="api-section">
+                <h2>Contacts API</h2>
+
+                <!-- GET /api/contacts -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>GET /api/contacts</span>
+                        <span class="method get">GET</span>
+                    </div>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/contacts" data-method="GET">Run
+                            Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- GET /api/contacts/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>GET /api/contacts/:id</span>
+                        <span class="method get">GET</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter contact ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/contacts/" data-method="GET"
+                            data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- POST /api/contacts -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>POST /api/contacts</span>
+                        <span class="method post">POST</span>
+                    </div>
+                    <textarea class="request-body">{
+  "client_id": "1",
+  "name": "Jane Smith",
+  "email": "jane@acmecorp.com",
+  "phone": "1122334455",
+  "role": "Project Manager"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/contacts" data-method="POST"
+                            data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- PUT /api/contacts/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>PUT /api/contacts/:id</span>
+                        <span class="method put">PUT</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter contact ID">
+                    </div>
+                    <textarea class="request-body">{
+  "client_id": "1",
+  "name": "Jane Smith Updated",
+  "email": "jane.updated@acmecorp.com",
+  "phone": "5566778899",
+  "role": "Senior Project Manager"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/contacts/" data-method="PUT"
+                            data-needs-id="true" data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- DELETE /api/contacts/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>DELETE /api/contacts/:id</span>
+                        <span class="method delete">DELETE</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter contact ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/contacts/" data-method="DELETE"
+                            data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <div class="test-container">
-        <h2>Employees API</h2>
-        <div class="endpoints" id="employeesEndpoints">
-            <!-- Employee endpoints will be generated here -->
+
+        <!-- Employees API -->
+        <div id="employees" class="tab-content">
+            <div class="api-section">
+                <h2>Employees API</h2>
+
+                <!-- GET /api/employees -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>GET /api/employees</span>
+                        <span class="method get">GET</span>
+                    </div>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/employees" data-method="GET">Run
+                            Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- GET /api/employees/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>GET /api/employees/:id</span>
+                        <span class="method get">GET</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter employee ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/employees/" data-method="GET"
+                            data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- POST /api/employees -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>POST /api/employees</span>
+                        <span class="method post">POST</span>
+                    </div>
+                    <textarea class="request-body">{
+  "name": "jdoe",
+  "password": "securepass123",
+  "first_name": "John",
+  "father_name": "Michael",
+  "last_name": "Doe",
+  "position": "Designer",
+  "email": "john.doe@example.com",
+  "phone": "1234567890",
+  "hire_date": "2025-04-01",
+  "info": "Specialist in branding"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/employees" data-method="POST"
+                            data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- PUT /api/employees/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>PUT /api/employees/:id</span>
+                        <span class="method put">PUT</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter employee ID">
+                    </div>
+                    <textarea class="request-body">{
+  "name": "jdoe_updated",
+  "password": "updatedpass456",
+  "first_name": "John",
+  "father_name": "Michael",
+  "last_name": "Doe",
+  "position": "Senior Designer",
+  "email": "john.doe.updated@example.com",
+  "phone": "9876543210",
+  "hire_date": "2025-04-01",
+  "info": "Specialist in branding and UI/UX"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/employees/" data-method="PUT"
+                            data-needs-id="true" data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- DELETE /api/employees/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>DELETE /api/employees/:id</span>
+                        <span class="method delete">DELETE</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter employee ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/employees/" data-method="DELETE"
+                            data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <div class="test-container">
-        <h2>Projects API</h2>
-        <div class="endpoints" id="projectsEndpoints">
-            <!-- Project endpoints will be generated here -->
+
+        <!-- Projects API -->
+        <div id="projects" class="tab-content">
+            <div class="api-section">
+                <h2>Projects API</h2>
+
+                <!-- GET /api/projects -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>GET /api/projects</span>
+                        <span class="method get">GET</span>
+                    </div>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/projects" data-method="GET">Run
+                            Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- GET /api/projects/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>GET /api/projects/:id</span>
+                        <span class="method get">GET</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter project ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/projects/" data-method="GET"
+                            data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- POST /api/projects -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>POST /api/projects</span>
+                        <span class="method post">POST</span>
+                    </div>
+                    <textarea class="request-body">{
+  "name": "Brand Revamp",
+  "description": "Rebranding and digital overhaul",
+  "client_id": 1,
+  "start_date": "2025-04-10",
+  "deadline": "2025-06-30",
+  "overview": "Includes logo redesign, website, and social media kit",
+  "files": "revamp-docs.zip"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/projects" data-method="POST"
+                            data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- PUT /api/projects/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>PUT /api/projects/:id</span>
+                        <span class="method put">PUT</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter project ID">
+                    </div>
+                    <textarea class="request-body">{
+  "name": "Brand Revamp Updated",
+  "description": "Complete rebranding and digital overhaul",
+  "client_id": 1,
+  "start_date": "2025-04-15",
+  "deadline": "2025-07-15",
+  "overview": "Includes logo redesign, website, social media kit, and print materials",
+  "files": "revamp-docs-v2.zip"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/projects/" data-method="PUT"
+                            data-needs-id="true" data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- DELETE /api/projects/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>DELETE /api/projects/:id</span>
+                        <span class="method delete">DELETE</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter project ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/projects/" data-method="DELETE"
+                            data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <div class="test-container">
-        <h2>Project Relationships API</h2>
-        <div class="endpoints" id="projectRelationshipsEndpoints">
-            <!-- Project relationships endpoints will be generated here -->
+
+        <!-- Project Associations API -->
+        <div id="associations" class="tab-content">
+            <div class="api-section">
+                <h2>Project Associations API</h2>
+
+                <!-- POST /api/projects/:project_id/employees/:employee_id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>POST /api/projects/:project_id/employees/:employee_id</span>
+                        <span class="method post">POST</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="project-id-input" placeholder="Enter project ID">
+                        <input type="text" class="employee-id-input" placeholder="Enter employee ID">
+                        <button class="test-button association-button" data-url="http://localhost:3002/api/projects/"
+                            data-method="POST" data-resource="employees">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- DELETE /api/projects/:project_id/employees/:employee_id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>DELETE /api/projects/:project_id/employees/:employee_id</span>
+                        <span class="method delete">DELETE</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="project-id-input" placeholder="Enter project ID">
+                        <input type="text" class="employee-id-input" placeholder="Enter employee ID">
+                        <button class="test-button association-button" data-url="http://localhost:3002/api/projects/"
+                            data-method="DELETE" data-resource="employees">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- POST /api/projects/:project_id/contacts/:contact_id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>POST /api/projects/:project_id/contacts/:contact_id</span>
+                        <span class="method post">POST</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="project-id-input" placeholder="Enter project ID">
+                        <input type="text" class="contact-id-input" placeholder="Enter contact ID">
+                        <button class="test-button association-button" data-url="http://localhost:3002/api/projects/"
+                            data-method="POST" data-resource="contacts">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- DELETE /api/projects/:project_id/contacts/:contact_id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>DELETE /api/projects/:project_id/contacts/:contact_id</span>
+                        <span class="method delete">DELETE</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="project-id-input" placeholder="Enter project ID">
+                        <input type="text" class="contact-id-input" placeholder="Enter contact ID">
+                        <button class="test-button association-button" data-url="http://localhost:3002/api/projects/"
+                            data-method="DELETE" data-resource="contacts">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- POST /api/projects/:project_id/services/:service_id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>POST /api/projects/:project_id/services/:service_id</span>
+                        <span class="method post">POST</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="project-id-input" placeholder="Enter project ID">
+                        <input type="text" class="service-id-input" placeholder="Enter service ID">
+                        <button class="test-button association-button" data-url="http://localhost:3002/api/projects/"
+                            data-method="POST" data-resource="services">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- DELETE /api/projects/:project_id/services/:service_id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>DELETE /api/projects/:project_id/services/:service_id</span>
+                        <span class="method delete">DELETE</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="project-id-input" placeholder="Enter project ID">
+                        <input type="text" class="service-id-input" placeholder="Enter service ID">
+                        <button class="test-button association-button" data-url="http://localhost:3002/api/projects/"
+                            data-method="DELETE" data-resource="services">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <div class="test-container">
-        <h2>Project Milestones API</h2>
-        <div class="endpoints" id="milestonesEndpoints">
-            <!-- Milestone endpoints will be generated here -->
+
+        <!-- Project Milestones API -->
+        <div id="milestones" class="tab-content">
+            <div class="api-section">
+                <h2>Project Milestones API</h2>
+
+                <!-- POST /api/projects/:id/milestones -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>POST /api/projects/:id/milestones</span>
+                        <span class="method post">POST</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter project ID">
+                    </div>
+                    <textarea class="request-body">{
+  "name": "Initial Presentation",
+  "description": "Share first design mockups with client",
+  "date": "2025-04-20",
+  "due_date": "2025-04-25",
+  "status": "Pending"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button milestone-button" data-url="http://localhost:3002/api/projects/"
+                            data-method="POST" data-needs-id="true" data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- PUT /api/projects/milestones/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>PUT /api/projects/milestones/:id</span>
+                        <span class="method put">PUT</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter milestone ID">
+                    </div>
+                    <textarea class="request-body">{
+  "name": "Initial Presentation Updated",
+  "description": "Share revised design mockups with client",
+  "date": "2025-04-22",
+  "due_date": "2025-04-27",
+  "status": "In Progress"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/projects/milestones/"
+                            data-method="PUT" data-needs-id="true" data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- DELETE /api/projects/milestones/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>DELETE /api/projects/milestones/:id</span>
+                        <span class="method delete">DELETE</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter milestone ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/projects/milestones/"
+                            data-method="DELETE" data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <div class="test-container">
-        <h2>Services API</h2>
-        <div class="endpoints" id="servicesEndpoints">
-            <!-- Service endpoints will be generated here -->
+
+
+
+        <!-- Tasks API -->
+        <div id="tasks" class="tab-content">
+            <div class="api-section">
+                <h2>Tasks API</h2>
+
+                <!-- GET /api/tasks -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>GET /api/tasks</span>
+                        <span class="method get">GET</span>
+                    </div>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/tasks" data-method="GET">Run
+                            Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- GET /api/tasks/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>GET /api/tasks/:id</span>
+                        <span class="method get">GET</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter task ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/tasks/" data-method="GET"
+                            data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- POST /api/tasks -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>POST /api/tasks</span>
+                        <span class="method post">POST</span>
+                    </div>
+                    <textarea class="request-body">{
+  "type": "Design",
+  "projectId": 2,
+  "contactAssigned": 5,
+  "employeeAssigned": 3,
+  "contactCompleted": 0,
+  "employeeCompleted": 0,
+  "completed": "N",
+  "date": "2025-04-10",
+  "dueDate": "2025-04-15",
+  "taskDescription": "Design homepage layout",
+  "importanceLevel": "High"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/tasks" data-method="POST"
+                            data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- PUT /api/tasks/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>PUT /api/tasks/:id</span>
+                        <span class="method put">PUT</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter task ID">
+                    </div>
+                    <textarea class="request-body">{
+  "type": "Design",
+  "projectId": 2,
+  "contactAssigned": 5,
+  "employeeAssigned": 3,
+  "contactCompleted": 1,
+  "employeeCompleted": 1,
+  "completed": "Y",
+  "date": "2025-04-10",
+  "dueDate": "2025-04-15",
+  "taskDescription": "Design homepage layout - completed",
+  "importanceLevel": "High"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/tasks/" data-method="PUT"
+                            data-needs-id="true" data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- DELETE /api/tasks/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>DELETE /api/tasks/:id</span>
+                        <span class="method delete">DELETE</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter task ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/tasks/" data-method="DELETE"
+                            data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users API -->
+        <div id="users" class="tab-content">
+            <div class="api-section">
+                <h2>Users API</h2>
+
+                <!-- GET /api/users -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>GET /api/users</span>
+                        <span class="method get">GET</span>
+                    </div>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/users" data-method="GET">Run
+                            Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- GET /api/users/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>GET /api/users/:id</span>
+                        <span class="method get">GET</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter user ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/users/" data-method="GET"
+                            data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- POST /api/users -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>POST /api/users</span>
+                        <span class="method post">POST</span>
+                    </div>
+                    <textarea class="request-body">{
+  "username": "admin",
+  "email": "admin@example.com",
+  "password": "adminpass"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/users" data-method="POST"
+                            data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- PUT /api/users/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>PUT /api/users/:id</span>
+                        <span class="method put">PUT</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter user ID">
+                    </div>
+                    <textarea class="request-body">{
+  "username": "admin_updated",
+  "email": "admin_updated@example.com",
+  "password": "newadminpass"
+}</textarea>
+                    <div class="controls">
+                        <button class="test-button" data-url="http://localhost:3002/api/users/" data-method="PUT"
+                            data-needs-id="true" data-needs-body="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+
+                <!-- DELETE /api/users/:id -->
+                <div class="endpoint">
+                    <div class="endpoint-title">
+                        <span>DELETE /api/users/:id</span>
+                        <span class="method delete">DELETE</span>
+                    </div>
+                    <div class="controls">
+                        <input type="text" class="id-input" placeholder="Enter user ID">
+                        <button class="test-button" data-url="http://localhost:3002/api/users/" data-method="DELETE"
+                            data-needs-id="true">Run Test</button>
+                    </div>
+                    <div class="response"></div>
+                    <div class="status"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Store created resources IDs
-        const createdResources = {
-            clients: null,
-            contacts: null,
-            employees: null,
-            projects: null,
-            services: null,
-            milestones: null
-        };
+        document.addEventListener('DOMContentLoaded', function () {
+            // Tab switching functionality
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
 
-        let baseUrl = 'http://localhost:3002';
-
-        // API Definitions
-        const apiDefinitions = {
-            clients: [
-                {
-                    name: 'Get All Clients',
-                    method: 'GET',
-                    url: '/api/clients',
-                    body: null
-                },
-                {
-                    name: 'Create Client',
-                    method: 'POST',
-                    url: '/api/clients',
-                    body: {
-                        name: 'Acme Corporation',
-                        email: 'contact@acme.com',
-                        phone: '123-456-7890',
-                        address: '123 Main Street, City, Country',
-                        client_type: 'Business'
-                    }
-                },
-                {
-                    name: 'Get Client by ID',
-                    method: 'GET',
-                    url: '/api/clients/:id',
-                    needsId: true,
-                    body: null
-                },
-                {
-                    name: 'Update Client',
-                    method: 'PUT',
-                    url: '/api/clients/:id',
-                    needsId: true,
-                    body: {
-                        name: 'Acme Corporation Updated',
-                        email: 'new-contact@acme.com',
-                        phone: '987-654-3210',
-                        address: '456 Second Street, City, Country',
-                        client_type: 'Enterprise'
-                    }
-                },
-                {
-                    name: 'Delete Client',
-                    method: 'DELETE',
-                    url: '/api/clients/:id',
-                    needsId: true,
-                    body: null
-                }
-            ],
-            contacts: [
-                {
-                    name: 'Get All Contacts',
-                    method: 'GET',
-                    url: '/api/contacts',
-                    body: null
-                },
-                {
-                    name: 'Create Contact',
-                    method: 'POST',
-                    url: '/api/contacts',
-                    body: {
-                        client_id: 'dependency:clients',
-                        name: 'John Doe',
-                        email: 'john.doe@acme.com',
-                        phone: '123-456-7890',
-                        role: 'Project Manager'
-                    }
-                },
-                {
-                    name: 'Get Contact by ID',
-                    method: 'GET',
-                    url: '/api/contacts/:id',
-                    needsId: true,
-                    body: null
-                },
-                {
-                    name: 'Update Contact',
-                    method: 'PUT',
-                    url: '/api/contacts/:id',
-                    needsId: true,
-                    body: {
-                        client_id: 'dependency:clients',
-                        name: 'John Doe Updated',
-                        email: 'john.updated@acme.com',
-                        phone: '987-654-3210',
-                        role: 'Senior Project Manager'
-                    }
-                },
-                {
-                    name: 'Delete Contact',
-                    method: 'DELETE',
-                    url: '/api/contacts/:id',
-                    needsId: true,
-                    body: null
-                }
-            ],
-            employees: [
-                {
-                    name: 'Get All Employees',
-                    method: 'GET',
-                    url: '/api/employees',
-                    body: null
-                },
-                {
-                    name: 'Create Employee',
-                    method: 'POST',
-                    url: '/api/employees',
-                    body: {
-                        name: 'jsmith',
-                        password: 'securepassword123',
-                        first_name: 'Jane',
-                        father_name: 'Robert',
-                        last_name: 'Smith',
-                        position: 'Developer',
-                        email: 'jane.smith@company.com',
-                        phone: '123-456-7890',
-                        hire_date: '2023-01-15',
-                        info: 'Full-stack developer with 5 years experience'
-                    }
-                },
-                {
-                    name: 'Get Employee by ID',
-                    method: 'GET',
-                    url: '/api/employees/:id',
-                    needsId: true,
-                    body: null
-                },
-                {
-                    name: 'Update Employee',
-                    method: 'PUT',
-                    url: '/api/employees/:id',
-                    needsId: true,
-                    body: {
-                        name: 'jsmith',
-                        password: 'newsecurepassword456',
-                        first_name: 'Jane',
-                        father_name: 'Robert',
-                        last_name: 'Smith',
-                        position: 'Senior Developer',
-                        email: 'jane.smith@company.com',
-                        phone: '987-654-3210',
-                        hire_date: '2023-01-15',
-                        info: 'Full-stack developer with 5 years experience, recently promoted'
-                    }
-                },
-                {
-                    name: 'Delete Employee',
-                    method: 'DELETE',
-                    url: '/api/employees/:id',
-                    needsId: true,
-                    body: null
-                }
-            ],
-            projects: [
-                {
-                    name: 'Get All Projects',
-                    method: 'GET',
-                    url: '/api/projects',
-                    body: null
-                },
-                {
-                    name: 'Create Project',
-                    method: 'POST',
-                    url: '/api/projects',
-                    body: {
-                        name: 'Website Redesign',
-                        description: 'Complete overhaul of company website',
-                        client_id: 'dependency:clients',
-                        start_date: '2023-05-01',
-                        deadline: '2023-08-31',
-                        status: 'In Progress',
-                        overview: 'Modernizing the company website with new design and functionality',
-                        files: 'wireframe.pdf'
-                    }
-                },
-                {
-                    name: 'Get Project by ID',
-                    method: 'GET',
-                    url: '/api/projects/:id',
-                    needsId: true,
-                    body: null
-                },
-                {
-                    name: 'Update Project',
-                    method: 'PUT',
-                    url: '/api/projects/:id',
-                    needsId: true,
-                    body: {
-                        name: 'Website Redesign and SEO',
-                        description: 'Complete overhaul of company website with SEO optimization',
-                        client_id: 'dependency:clients',
-                        start_date: '2023-05-01',
-                        deadline: '2023-09-30',
-                        status: 'In Progress',
-                        overview: 'Modernizing the company website with new design, functionality, and SEO optimization',
-                        files: ['wireframe.pdf', 'requirements.docx', 'seo-plan.pdf']
-                    }
-                },
-                {
-                    name: 'Delete Project',
-                    method: 'DELETE',
-                    url: '/api/projects/:id',
-                    needsId: true,
-                    body: null
-                }
-            ],
-            projectRelationships: [
-                {
-                    name: 'Assign Employee to Project',
-                    method: 'POST',
-                    url: '/api/projects/:project_id/employees/:employee_id',
-                    needsProject: true,
-                    needsEmployee: true,
-                    body: null
-                },
-                {
-                    name: 'Remove Employee from Project',
-                    method: 'DELETE',
-                    url: '/api/projects/:project_id/employees/:employee_id',
-                    needsProject: true,
-                    needsEmployee: true,
-                    body: null
-                },
-                {
-                    name: 'Associate Contact with Project',
-                    method: 'POST',
-                    url: '/api/projects/:project_id/contacts/:contact_id',
-                    needsProject: true,
-                    needsContact: true,
-                    body: null
-                },
-                {
-                    name: 'Remove Contact from Project',
-                    method: 'DELETE',
-                    url: '/api/projects/:project_id/contacts/:contact_id',
-                    needsProject: true,
-                    needsContact: true,
-                    body: null
-                },
-                {
-                    name: 'Link Service to Project',
-                    method: 'POST',
-                    url: '/api/projects/:project_id/services/:service_id',
-                    needsProject: true,
-                    needsService: true,
-                    body: null
-                },
-                {
-                    name: 'Unlink Service from Project',
-                    method: 'DELETE',
-                    url: '/api/projects/:project_id/services/:service_id',
-                    needsProject: true,
-                    needsService: true,
-                    body: null
-                }
-            ],
-            milestones: [
-                {
-                    name: 'Create Milestone',
-                    method: 'POST',
-                    url: '/api/projects/:id/milestones',
-                    needsProject: true,
-                    body: {
-                        title: 'Initial Design Phase',
-                        description: 'Complete the initial design mockups',
-                        due_date: '2023-06-15',
-                        status: 'Not Started'
-                    }
-                },
-                {
-                    name: 'Update Milestone',
-                    method: 'PUT',
-                    url: '/api/projects/milestones/:id',
-                    needsMilestone: true,
-                    body: {
-                        title: 'Initial Design Phase - Updated',
-                        description: 'Complete the revised initial design mockups',
-                        due_date: '2023-06-30',
-                        status: 'In Progress'
-                    }
-                },
-                {
-                    name: 'Delete Milestone',
-                    method: 'DELETE',
-                    url: '/api/projects/milestones/:id',
-                    needsMilestone: true,
-                    body: null
-                }
-            ],
-            services: [
-                {
-                    name: 'Get All Services',
-                    method: 'GET',
-                    url: '/api/services',
-                    body: null
-                },
-                {
-                    name: 'Create Service',
-                    method: 'POST',
-                    url: '/api/services',
-                    body: {
-                        name: 'Web Development',
-                        description: 'Full-stack web application development',
-                        rate: 150,
-                        duration: 80,
-                        status: 'Active'
-                    }
-                },
-                {
-                    name: 'Get Service by ID',
-                    method: 'GET',
-                    url: '/api/services/:id',
-                    needsId: true,
-                    body: null
-                },
-                {
-                    name: 'Update Service',
-                    method: 'PUT',
-                    url: '/api/services/:id',
-                    needsId: true,
-                    body: {
-                        name: 'Enterprise Web Development',
-                        description: 'Full-stack web application development for enterprise clients',
-                        rate: 200,
-                        duration: 100,
-                        status: 'Active'
-                    }
-                },
-                {
-                    name: 'Delete Service',
-                    method: 'DELETE',
-                    url: '/api/services/:id',
-                    needsId: true,
-                    body: null
-                }
-            ]
-        };
-
-        // Initialize dashboard
-        function init() {
-            for (const [resource, endpoints] of Object.entries(apiDefinitions)) {
-                const container = document.getElementById(`${resource}Endpoints`);
-                endpoints.forEach((endpoint, index) => {
-                    container.innerHTML += createEndpointHTML(resource, endpoint, index);
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
                 });
-            }
-        }
+            });
 
-        // Create HTML for each endpoint
-        function createEndpointHTML(resource, endpoint, index) {
-            let urlDisplay = endpoint.url;
-            if (endpoint.needsId) {
-                urlDisplay = urlDisplay.replace(':id', ':id_placeholder');
-            }
-            if (endpoint.needsProject) {
-                urlDisplay = urlDisplay.replace(':project_id', ':project_id_placeholder');
-                urlDisplay = urlDisplay.replace(':id', ':project_id_placeholder');
-            }
-            if (endpoint.needsEmployee) {
-                urlDisplay = urlDisplay.replace(':employee_id', ':employee_id_placeholder');
-            }
-            if (endpoint.needsContact) {
-                urlDisplay = urlDisplay.replace(':contact_id', ':contact_id_placeholder');
-            }
-            if (endpoint.needsService) {
-                urlDisplay = urlDisplay.replace(':service_id', ':service_id_placeholder');
-            }
-            if (endpoint.needsMilestone) {
-                urlDisplay = urlDisplay.replace(':id', ':milestone_id_placeholder');
-            }
-            
-            return `
-                <div class="endpoint" id="${resource}-endpoint-${index}">
-                    <h3>${endpoint.name}</h3>
-                    <p><strong>Method:</strong> ${endpoint.method}</p>
-                    <p><strong>URL:</strong> ${urlDisplay}</p>
-                    <button onclick="testEndpoint('${resource}', ${index})">Test</button>
-                    <div class="status">
-                        <span>Status: <span class="response-time" id="${resource}-time-${index}"></span></span>
-                        <div class="status-indicator" id="${resource}-status-${index}"></div>
-                    </div>
-                    <div class="result" id="${resource}-result-${index}"></div>
-                </div>
-            `;
-        }
+            // Handle individual test button clicks
+            document.querySelectorAll('.test-button').forEach(button => {
+                button.addEventListener('click', async () => {
+                    await runTest(button);
+                });
+            });
 
-        // Process the endpoint request
-        async function testEndpoint(resource, index) {
-            const endpoint = apiDefinitions[resource][index];
-            
-            // Update UI to show pending status
-            document.getElementById(`${resource}-status-${index}`).className = 'status-indicator pending';
-            document.getElementById(`${resource}-result-${index}`).textContent = 'Testing...';
-            
-            let url = baseUrl + endpoint.url;
-            
-            // Handle ID placeholder replacement
-            if (endpoint.needsId) {
-                const resourceId = createdResources[resource];
-                if (!resourceId && endpoint.method !== 'POST') {
-                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
-                    document.getElementById(`${resource}-result-${index}`).textContent = 'Error: Need to create a resource first';
-                    return;
+            // Handle run all button click
+            document.getElementById('runAllButton').addEventListener('click', async () => {
+                const buttons = document.querySelectorAll('.test-button');
+                for (const button of buttons) {
+                    await runTest(button);
+                    // Add a small delay between requests
+                    await new Promise(resolve => setTimeout(resolve, 300));
                 }
-                url = url.replace(':id', resourceId);
-            }
-            
-            // Handle project ID placeholder replacement
-            if (endpoint.needsProject) {
-                const projectId = createdResources.projects;
-                if (!projectId) {
-                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
-                    document.getElementById(`${resource}-result-${index}`).textContent = 'Error: Need to create a project first';
-                    return;
-                }
-                url = url.replace(':project_id', projectId);
-                url = url.replace(':id', projectId); // For milestone creation which uses :id
-            }
-            
-            // Handle employee ID placeholder replacement
-            if (endpoint.needsEmployee) {
-                const employeeId = createdResources.employees;
-                if (!employeeId) {
-                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
-                    document.getElementById(`${resource}-result-${index}`).textContent = 'Error: Need to create an employee first';
-                    return;
-                }
-                url = url.replace(':employee_id', employeeId);
-            }
-            
-            // Handle contact ID placeholder replacement
-            if (endpoint.needsContact) {
-                const contactId = createdResources.contacts;
-                if (!contactId) {
-                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
-                    document.getElementById(`${resource}-result-${index}`).textContent = 'Error: Need to create a contact first';
-                    return;
-                }
-                url = url.replace(':contact_id', contactId);
-            }
-            
-            // Handle service ID placeholder replacement
-            if (endpoint.needsService) {
-                const serviceId = createdResources.services;
-                if (!serviceId) {
-                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
-                    document.getElementById(`${resource}-result-${index}`).textContent = 'Error: Need to create a service first';
-                    return;
-                }
-                url = url.replace(':service_id', serviceId);
-            }
-            
-            // Handle milestone ID placeholder replacement
-            if (endpoint.needsMilestone) {
-                const milestoneId = createdResources.milestones;
-                if (!milestoneId) {
-                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
-                    document.getElementById(`${resource}-result-${index}`).textContent = 'Error: Need to create a milestone first';
-                    return;
-                }
-                url = url.replace(':id', milestoneId);
-            }
-            
-            // Handle request body and dependencies
-            let body = endpoint.body ? JSON.parse(JSON.stringify(endpoint.body)) : null;
-            if (body) {
-                for (const key in body) {
-                    if (typeof body[key] === 'string' && body[key].startsWith('dependency:')) {
-                        const depResource = body[key].split(':')[1];
-                        if (!createdResources[depResource]) {
-                            document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
-                            document.getElementById(`${resource}-result-${index}`).textContent = `Error: Dependency on ${depResource} not met`;
+            });
+
+            // Function to run a test
+            async function runTest(button) {
+                const endpoint = button.closest('.endpoint');
+                const responseDiv = endpoint.querySelector('.response');
+                const statusDiv = endpoint.querySelector('.status');
+
+                let url = button.dataset.url;
+                const method = button.dataset.method;
+                const needsId = button.dataset.needsId === 'true';
+                const needsBody = button.dataset.needsBody === 'true';
+
+                // Reset UI
+                responseDiv.textContent = 'Running test...';
+                responseDiv.style.color = '#666';
+                statusDiv.textContent = '';
+                statusDiv.className = 'status';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                try {
+                    // Handle association endpoints (projects/:project_id/[resource]/:resource_id)
+                    if (button.classList.contains('association-button')) {
+                        const projectId = endpoint.querySelector('.project-id-input').value.trim();
+                        const resourceType = button.dataset.resource;
+                        const resourceId = endpoint.querySelector(`.${resourceType.slice(0, -1)}-id-input`).value.trim();
+
+                        if (!projectId || !resourceId) {
+                            responseDiv.textContent = 'Error: Both project ID and resource ID are required';
+                            statusDiv.textContent = 'Failed';
+                            statusDiv.className = 'status error';
                             return;
                         }
-                        body[key] = createdResources[depResource];
+
+                        url = `${url}${projectId}/${resourceType}/${resourceId}`;
                     }
-                }
-            }
-            
-            // Make the API request
-            const startTime = performance.now();
-            try {
-                const response = await fetch(url, {
-                    method: endpoint.method,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: body ? JSON.stringify(body) : undefined
-                });
-                
-                const endTime = performance.now();
-                const responseTime = Math.round(endTime - startTime);
-                document.getElementById(`${resource}-time-${index}`).textContent = `${responseTime}ms`;
-                
-                const responseData = await response.json().catch(() => {});
-                
-                if (response.ok) {
-                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator success';
-                    document.getElementById(`${resource}-result-${index}`).textContent = JSON.stringify(responseData, null, 2);
-                    
-                    // Store ID if this was a create operation
-                    if (endpoint.method === 'POST' && responseData && responseData.id) {
-                        if (resource === 'milestones') {
-                            createdResources.milestones = responseData.id;
-                        } else {
-                            createdResources[resource] = responseData.id;
+                    // Handle milestone creation
+                    else if (button.classList.contains('milestone-button')) {
+                        const projectId = endpoint.querySelector('.id-input').value.trim();
+
+                        if (!projectId) {
+                            responseDiv.textContent = 'Error: Project ID is required';
+                            statusDiv.textContent = 'Failed';
+                            statusDiv.className = 'status error';
+                            return;
+                        }
+
+                        url = `${url}${projectId}/milestones`;
+                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    // Handle standard ID endpoints
+                    else if (needsId) {
+                        const idInput = endpoint.querySelector('.id-input');
+                        const id = idInput.value.trim();
+
+                        if (!id) {
+                            responseDiv.textContent = 'Error: ID is required for this endpoint';
+                            statusDiv.textContent = 'Failed';
+                            statusDiv.className = 'status error';
+                            return;
+                        }
+
+                        url += id;
+                    }
+
+                    // Build fetch options
+                    const options = {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    };
+
+                    // Add request body if needed
+                    if (needsBody) {
+                        const bodyTextarea = endpoint.querySelector('.request-body');
+                        try {
+                            const bodyJson = JSON.parse(bodyTextarea.value);
+                            options.body = JSON.stringify(bodyJson);
+                        } catch (e) {
+                            responseDiv.textContent = 'Error: Invalid JSON in request body';
+                            statusDiv.textContent = 'Failed';
+                            statusDiv.className = 'status error';
+                            return;
                         }
                     }
-                } else {
-                    document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
-                    document.getElementById(`${resource}-result-${index}`).textContent = JSON.stringify(responseData || response.statusText, null, 2);
-                }
-            } catch (error) {
-                const endTime = performance.now();
-                const responseTime = Math.round(endTime - startTime);
-                document.getElementById(`${resource}-time-${index}`).textContent = `${responseTime}ms`;
-                
-                document.getElementById(`${resource}-status-${index}`).className = 'status-indicator error';
-                document.getElementById(`${resource}-result-${index}`).textContent = `Network error: ${error.message}`;
-            }
-        }
 
-        // Run all tests in sequence
-        async function runAllTests() {
-            // Reset created resources
-            for (const resource in createdResources) {
-                createdResources[resource] = null;
-            }
-            
-            const progressBar = document.getElementById('progressBar');
-            progressBar.style.width = '0%';
-            
-            let totalTests = 0;
-            let completedTests = 0;
-            
-            // Count total number of tests
-            for (const resource in apiDefinitions) {
-                totalTests += apiDefinitions[resource].length;
-            }
-            
-            // Process resources in a specific order to handle dependencies
-            const resourceOrder = ['clients', 'services', 'employees', 'contacts', 'projects', 'projectRelationships', 'milestones'];
-            
-            for (const resource of resourceOrder) {
-                // First do creates, then GETs, then updates
-                const endpoints = apiDefinitions[resource];
-                
-                // Process POSTs first (creates)
-                for (let i = 0; i < endpoints.length; i++) {
-                    if (endpoints[i].method === 'POST') {
-                        await testEndpoint(resource, i);
-                        completedTests++;
-                        progressBar.style.width = `${(completedTests / totalTests) * 100}%`;
-                    }
-                }
-                
-                // Then process GETs
-                for (let i = 0; i < endpoints.length; i++) {
-                    if (endpoints[i].method === 'GET') {
-                        await testEndpoint(resource, i);
-                        completedTests++;
-                        progressBar.style.width = `${(completedTests / totalTests) * 100}%`;
-                    }
-                }
-                
-                // Then process PUTs (updates)
-                for (let i = 0; i < endpoints.length; i++) {
-                    if (endpoints[i].method === 'PUT') {
-                        await testEndpoint(resource, i);
-                        completedTests++;
-                        progressBar.style.width = `${(completedTests / totalTests) * 100}%`;
-                    }
-                }
-                
-                // Don't process DELETEs yet to maintain dependencies
-            }
-            
-            // Finally process all DELETEs in reverse order to handle dependencies properly
-            for (const resource of resourceOrder.slice().reverse()) {
-                const endpoints = apiDefinitions[resource];
-                for (let i = 0; i < endpoints.length; i++) {
-                    if (endpoints[i].method === 'DELETE') {
-                        await testEndpoint(resource, i);
-                        completedTests++;
-                        progressBar.style.width = `${(completedTests / totalTests) * 100}%`;
-                    }
-                }
-            }
-        }
+                    // Make the API request
+                    const response = await fetch(url, options);
+                    const data = await response.json();
 
-        // Update the base URL
-        function updateBaseUrl() {
-            baseUrl = document.getElementById('baseUrl').value;
-        }
+                    // Display the response
+                    responseDiv.textContent = JSON.stringify(data, null, 2);
+                    responseDiv.style.color = '#333';
 
-        // Initialize when page loads
-        window.onload = init;
+                    // Update status
+                    if (response.ok) {
+                        statusDiv.textContent = 'Success';
+                        statusDiv.className = 'status success';
+                    } else {
+                        statusDiv.textContent = `Error: ${response.status}`;
+                        statusDiv.className = 'status error';
+                    }
+                } catch (error) {
+                    responseDiv.textContent = 'Error: ' + error.message;
+                    statusDiv.textContent = 'Failed';
+                    statusDiv.className = 'status error';
+                }
+            }
+        });
     </script>
 </body>
+
 </html>
